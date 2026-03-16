@@ -19,13 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>P1</td>
                 <td><input type="number" class="arrival" value="0" min="0"></td>
                 <td><input type="number" class="burst" value="5" min="1"></td>
-                <td><input type="number" class="priority" value="1" min="1"></td>
+                <td class="priority-column"><input type="number" class="priority" value="1" min="1"></td>
                 <td></td>
             </tr>
         `;
         processCount = 1;
         resultsArea.style.display = 'none';
         if (performanceChart) performanceChart.destroy();
+        updateVisibility();
     });
 
     // Toggle Quantum and Priority input
@@ -68,17 +69,54 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper to get processes from table
     function getProcesses() {
         const rows = document.querySelectorAll('#process-table-body tr');
-        return Array.from(rows).map(row => ({
-            id: row.cells[0].innerText,
-            arrival: row.querySelector('.arrival').value,
-            burst: row.querySelector('.burst').value,
-            priority: row.querySelector('.priority').value
-        }));
+        let valid = true;
+        const processes = Array.from(rows).map(row => {
+            const arrival = row.querySelector('.arrival').value;
+            const burst = row.querySelector('.burst').value;
+            const priority = row.querySelector('.priority').value;
+
+            if (arrival === '' || burst === '' || priority === '') {
+                valid = false;
+            }
+
+            return {
+                id: row.cells[0].innerText,
+                arrival: arrival,
+                burst: burst,
+                priority: priority
+            };
+        });
+        return valid ? processes : null;
+    }
+
+    // Helper for CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 
     // Simulate function
     simulateBtn.addEventListener('click', async () => {
         const processes = getProcesses();
+        if (!processes) {
+            alert('Please fill in all process details.');
+            return;
+        }
+        if (processes.length === 0) {
+            alert('Please add at least one process.');
+            return;
+        }
+
         const data = {
             algorithm: algoSelect.value,
             quantum: document.getElementById('quantum').value,
@@ -91,7 +129,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('/simulate/', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
                 body: JSON.stringify(data)
             });
 
@@ -114,6 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
         prioCols.forEach(col => col.style.display = 'table-cell');
 
         const processes = getProcesses();
+        if (!processes) {
+            alert('Please fill in all process details.');
+            return;
+        }
+        if (processes.length === 0) {
+            alert('Please add at least one process.');
+            return;
+        }
         const data = {
             algorithm: 'COMPARE',
             quantum: document.getElementById('quantum').value,
@@ -126,7 +175,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('/simulate/', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
                 body: JSON.stringify(data)
             });
 

@@ -7,7 +7,6 @@ from . import algorithms
 def home(request):
     return render(request, 'index.html')
 
-@csrf_exempt
 def simulate(request):
     if request.method == "POST":
         try:
