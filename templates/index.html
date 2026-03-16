@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process Scheduling Simulator | OS PBL</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Process Scheduler</h1>
+            <p>Interactive CPU Scheduling Algorithm Simulator & Visualizer</p>
+        </header>
+
+        <div class="grid">
+            <!-- Left Side: Input -->
+            <div class="card">
+                <h2>⚙️ Configuration</h2>
+                
+                <div class="form-group">
+                    <label>Algorithm</label>
+                    <select id="algo-select">
+                        <option value="FCFS">First Come First Serve (FCFS)</option>
+                        <option value="SJF">Shortest Job First (SJF - NP)</option>
+                        <option value="SRTF">Shortest Remaining Time First (SRTF - P)</option>
+                        <option value="Priority">Priority Scheduling (NP)</option>
+                        <option value="Priority_P">Priority Scheduling (Preemptive)</option>
+                        <option value="RR">Round Robin (RR)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="quantum-group">
+                    <label>Time Quantum</label>
+                    <input type="number" id="quantum" value="2" min="1">
+                </div>
+
+                <h3>Processes</h3>
+                <table class="processes-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Arrival</th>
+                            <th>Burst</th>
+                            <th class="priority-column">Prio</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="process-table-body">
+                        <tr>
+                            <td>P1</td>
+                            <td><input type="number" class="arrival" value="0" min="0"></td>
+                            <td><input type="number" class="burst" value="5" min="1"></td>
+                            <td class="priority-column"><input type="number" class="priority" value="1" min="1"></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>P2</td>
+                            <td><input type="number" class="arrival" value="1" min="0"></td>
+                            <td><input type="number" class="burst" value="3" min="1"></td>
+                            <td class="priority-column"><input type="number" class="priority" value="2" min="1"></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>P3</td>
+                            <td><input type="number" class="arrival" value="2" min="0"></td>
+                            <td><input type="number" class="burst" value="8" min="1"></td>
+                            <td class="priority-column"><input type="number" class="priority" value="3" min="1"></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-secondary" style="flex: 1" id="add-process">+ Add</button>
+                        <button class="btn btn-danger" style="flex: 1; border-radius: 0.75rem;" id="reset-btn">Reset</button>
+                        <button class="btn btn-primary" style="flex: 2" id="simulate-btn">Start Simulation</button>
+                    </div>
+                    <button class="btn btn-secondary" id="compare-btn" style="background: rgba(129, 140, 248, 0.1); border-color: rgba(129, 140, 248, 0.3); color: #818cf8;">🚀 Compare All Algorithms</button>
+                </div>
+            </div>
+
+            <!-- Right Side: Visualization -->
+            <div id="results-area" style="display: none;">
+                <div class="card">
+                    <h2>📊 Simulation Results</h2>
+                    
+                    <div class="results-grid">
+                        <div class="stat-card">
+                            <span class="value" id="avg-wt">0</span>
+                            <span class="label">Avg Waiting Time</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="value" id="avg-tat">0</span>
+                            <span class="label">Avg Turnaround Time</span>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 2.5rem; margin-bottom: 3rem;">Gantt Chart</h3>
+                    <div class="gantt-container">
+                        <div id="gantt-chart" class="gantt-chart">
+                            <!-- Blocks will be injected here -->
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 3rem;">Detailed Performance</h3>
+                    <div class="chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 2rem; background: var(--glass-bg); border-radius: 0.75rem; overflow: hidden;">
+                        <thead>
+                            <tr style="background: rgba(255,255,255,0.1); text-align: left;">
+                                <th style="padding: 1rem">Process</th>
+                                <th style="padding: 1rem">Waiting Time</th>
+                                <th style="padding: 1rem">Turnaround Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-table-body">
+                            <!-- Rows will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
